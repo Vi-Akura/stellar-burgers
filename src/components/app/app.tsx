@@ -3,11 +3,15 @@ import { Preloader } from '@ui';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 
 import type { AppContentProps } from './type';
-import type { TIngredient } from '@utils-types';
 
 import '../../index.css';
 
 import styles from './app.module.css';
+
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch } from '@/services/store';
+import { fetchIngredients } from '@/services/slices/ingredientSlice';
 
 import {
   ConstructorPage,
@@ -29,10 +33,21 @@ import {
 
  import { ProtectedRoute } from '../protectedroute/protected-route';
 
+ import {
+  ingredientsSelector,
+  ingredientsLoadingSelector,
+  ingredientsErrorSelector,
+ } from '@/services/selectors';
+
 const App = (): React.JSX.Element => {
-  const ingredients: TIngredient[] = [];
-  const isIngredientsLoading = false;
-  const ingredientsError = null;
+  const dispatch = useDispatch();
+  const ingredients = useSelector(ingredientsSelector);
+  const isIngredientsLoading = useSelector(ingredientsLoadingSelector);
+  const ingredientsError = useSelector(ingredientsErrorSelector);
+
+  useEffect(() => {
+    dispatch(fetchIngredients());
+  }, [dispatch]);
 
   return (
     <div className={styles.app}>
