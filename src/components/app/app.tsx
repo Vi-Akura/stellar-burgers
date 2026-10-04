@@ -1,7 +1,6 @@
 import { AppHeader } from '@components';
-import { ConstructorPage } from '@pages';
 import { Preloader } from '@ui';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 
 import type { AppContentProps } from './type';
 import type { TIngredient } from '@utils-types';
@@ -9,6 +8,26 @@ import type { TIngredient } from '@utils-types';
 import '../../index.css';
 
 import styles from './app.module.css';
+
+import {
+  ConstructorPage,
+  Feed,
+  Login,
+  Register,
+  ForgotPassword,
+  ResetPassword,
+  Profile,
+  ProfileOrders,
+  NotFound404
+ } from '@pages';
+
+ import {
+  OrderInfo,
+  IngredientDetails,
+  Modal
+ } from '@components';
+
+ import { ProtectedRoute } from '../protectedroute/protected-route';
 
 const App = (): React.JSX.Element => {
   const ingredients: TIngredient[] = [];
@@ -59,10 +78,55 @@ const AppContent = ({
 };
 
 const RouteComponent = (): React.JSX.Element => {
+  const navigate = useNavigate();
+
   return (
     <>
       <Routes>
         <Route path="/" element={<ConstructorPage />} />
+        <Route path="/feed" element={<Feed />} />
+
+        <Route path="/login" element={<ProtectedRoute unAuth component={<Login />}/>} />
+        <Route path="/register" element={<ProtectedRoute unAuth component={<Register />}/>} />
+        <Route path="/forgot-password" element={<ProtectedRoute unAuth component={<ForgotPassword />}/>} />
+        <Route path="/reset-password" element={<ProtectedRoute unAuth component={<ResetPassword />}/>} />
+        <Route path="/profile" element={<ProtectedRoute unAuth component={<Profile />}/>} />
+        <Route path="/profile/orders" element={<ProtectedRoute unAuth component={<ProfileOrders />}/>} />
+
+        <Route path="*" element={<NotFound404 />} />
+
+        <Route path="/feed/:number"
+          element={
+            <Modal
+              title="Идентификатор заказа"
+              onClose={() => navigate('/feed')}
+            >
+              <OrderInfo/>
+            </Modal>
+          }
+        />
+
+        <Route path="/ingredients/:id"
+          element={
+            <Modal
+              title="Детали ингридиента"
+              onClose={() => navigate('/')}
+            >
+              <IngredientDetails/>
+            </Modal>
+          }
+        />
+
+        <Route path="/profile/orders/:number"
+          element={
+            <Modal
+              title="Идентификатор заказа"
+              onClose={() => navigate('/profile/orders')}
+            >
+              <OrderInfo/>
+            </Modal>
+          }
+        />
       </Routes>
     </>
   );
