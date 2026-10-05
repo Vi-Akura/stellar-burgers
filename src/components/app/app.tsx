@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useDispatch } from '@/services/store';
 import { fetchIngredients } from '@/services/slices/ingredientSlice';
+import { fetchAuthUser } from '@/services/slices/userSlice';
 
 import {
   ConstructorPage,
@@ -47,6 +48,7 @@ const App = (): React.JSX.Element => {
 
   useEffect(() => {
     dispatch(fetchIngredients());
+    dispatch(fetchAuthUser());
   }, [dispatch]);
 
   return (

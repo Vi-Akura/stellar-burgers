@@ -4,5 +4,7 @@ export const ingredientsSelector = (state: RootState) => state.ingredients.data;
 export const ingredientsLoadingSelector = (state: RootState) => state.ingredients.isLoading;
 export const ingredientsErrorSelector = (state: RootState) => state.ingredients.error;
 
-export const userDataSelector = (state: any) => state.user?.user;
-export const isAuthCheckedSelector = (state: any) => state.user?.isAuthChecked ?? true;
+export const userDataSelector = (state: RootState) => state.user.user;
+export const isAuthCheckedSelector = (state: RootState) => state.user.isAuthChecked;
+export const isAuthLoadingSelector = (state: RootState) => state.user.isLoading;
+export const authErrorSelector = (state: RootState) => state.user.error;
