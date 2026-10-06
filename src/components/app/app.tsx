@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from '@/services/store';
 import { useLocation } from 'react-router-dom';
 import { fetchIngredients } from '@/services/slices/ingredientSlice';
-import { fetchAuthUser } from '@/services/slices/userSlice';
+import { fetchUser } from '@/services/slices/userSlice';
 
 import {
   ConstructorPage,
@@ -48,7 +48,7 @@ const App = (): React.JSX.Element => {
 
   useEffect(() => {
     dispatch(fetchIngredients());
-    dispatch(fetchAuthUser());
+    dispatch(fetchUser());
   }, [dispatch]);
 
   return (

@@ -1,24 +1,54 @@
 import { BurgerConstructorUI } from '@ui';
 import { useMemo } from 'react';
+import { useSelector, useDispatch } from '@/services/store';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-import type { TConstructorIngredient, TConstructorState, TOrder } from '@utils-types';
+import type { TConstructorIngredient } from '@utils-types';
+
+import { resetConstructor } from '@/services/slices/constructorSlice';
+import { createOrder, clearCurrentOrder } from '@/services/slices/orderSlice';
+import {
+  constructorBunSelector,
+  constructorIngredientsSelector,
+  userDataSelector,
+  orderRequestSelector,
+  currentOrderSelector
+} from '@/services/selectors';
 
 export const BurgerConstructor = (): React.JSX.Element | null => {
-  /** TODO: Взять переменные constructorItems, orderRequest и orderModalData из стора */
-  const constructorItems: TConstructorState = {
-    bun: null,
-    ingredients: [],
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const bun = useSelector(constructorBunSelector) || null;
+  const ingredients = useSelector(constructorIngredientsSelector) || [];
+  const user = useSelector(userDataSelector);
+  const orderRequest = useSelector(orderRequestSelector) || false;
+  const orderModalData = useSelector(currentOrderSelector) || null;
+
+  const constructorItems = {
+    bun,
+    ingredients,
   };
-  const orderRequest = false;
-  const orderModalData: TOrder | null = null;
 
   const onOrderClick = (): void => {
     if (!constructorItems.bun || orderRequest) return;
-    // TODO: Оформить заказ
+
+    if (!user) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+
+    const ingredientsIds = [
+      constructorItems.bun._id,
+      ...constructorItems.ingredients.map(item => item._id)
+    ];
+
+    dispatch(createOrder(ingredientsIds));
   };
 
   const closeOrderModal = (): void => {
-    // TODO: Закрыть модальное окно и сбросить заказ
+    dispatch(clearCurrentOrder());
+    dispatch(resetConstructor());
   };
 
   const price = useMemo(
@@ -28,7 +58,7 @@ export const BurgerConstructor = (): React.JSX.Element | null => {
         (s: number, v: TConstructorIngredient) => s + v.price,
         0
       ),
-    [constructorItems]
+    [constructorItems.bun, constructorItems.ingredients]
   );
 
   return (

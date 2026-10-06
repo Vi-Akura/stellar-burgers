@@ -1,83 +1,104 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { TOrder } from "@/utils/types";
-
+import { createSlice, createAsyncThunk, type SerializedError } from '@reduxjs/toolkit';
+import type { TOrder } from '@/utils/types';
 import {
   orderBurgerApi,
   getOrdersApi,
-  getOrderByNumberApi,
-} from "@/utils/burger-api";
+  getOrderByNumberApi
+} from '../../utils/burger-api';
 
-type TOrdersState = {
+type TOrderState = {
   orders: TOrder[];
+  currentOrder: TOrder | null;
   orderRequest: boolean;
-  orderModalData: TOrder | null;
+  error: SerializedError | null;
 };
 
-const initialState: TOrdersState = {
+const initialState: TOrderState = {
   orders: [],
+  currentOrder: null,
   orderRequest: false,
-  orderModalData: null,
+  error: null,
 };
 
-export const createOrder = createAsyncThunk(
-  'orders/createOrder',
-  async (ingredientsIds: string[]) => {
-    const response = await orderBurgerApi(ingredientsIds);
-    return response;
+export const createOrder = createAsyncThunk<TOrder, string[]>(
+  'order/createOrder',
+  async (ingredients, { rejectWithValue }) => {
+    try {
+      const response = await orderBurgerApi(ingredients);
+      return response.order;
+    } catch (err) {
+      return rejectWithValue(err);
+    }
   }
 );
 
-export const getUserOrders = createAsyncThunk(
-  'orders/getUserOrders',
-  async () => {
-    const orders = await getOrdersApi();
-    return orders;
+export const fetchOrders = createAsyncThunk<TOrder[]>(
+  'order/fetchOrders',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getOrdersApi();
+    } catch (err) {
+      return rejectWithValue(err);
+    }
   }
 );
 
-export const getOrderByNumber = createAsyncThunk(
-  'orders/getOrderByNumber',
-  async (number: number) => {
-    const response = await getOrderByNumberApi(number);
-    return response.orders[0];
+export const fetchOrderByNumber = createAsyncThunk<TOrder, number>(
+  'order/fetchOrderByNumber',
+  async (number, { rejectWithValue }) => {
+    try {
+      const response = await getOrderByNumberApi(number);
+      return response.orders[0];
+    } catch (err) {
+      return rejectWithValue(err);
+    }
   }
 );
 
-const ordersSlice = createSlice({
-  name: 'orders',
+const orderSlice = createSlice({
+  name: 'order',
   initialState,
   reducers: {
-    clearOrderModal: (state) => {
-      state.orderModalData = null;
-      state.orderRequest = false;
-    },
+    clearCurrentOrder: (state) => {
+      state.currentOrder = null;
+    }
   },
   extraReducers: (builder) => {
     builder
       .addCase(createOrder.pending, (state) => {
         state.orderRequest = true;
+        state.error = null;
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.orderRequest = false;
-        state.orderModalData = action.payload.order;
+        state.currentOrder = action.payload;
       })
-      .addCase(createOrder.rejected, (state) => {
+      .addCase(createOrder.rejected, (state, action) => {
         state.orderRequest = false;
-        state.orderModalData = null;
+        state.error = action.error || null;
       })
 
-      .addCase(getUserOrders.pending, (state) => {
-        state.orderRequest = true;
+      .addCase(fetchOrders.pending, (state) => {
+        state.error = null;
       })
-      .addCase(getUserOrders.fulfilled, (state, action) => {
-        state.orderRequest = false;
+      .addCase(fetchOrders.fulfilled, (state, action) => {
         state.orders = action.payload;
       })
-      .addCase(getUserOrders.rejected, (state) => {
-        state.orderRequest = false;
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.error = action.error || null;
+      })
+
+      .addCase(fetchOrderByNumber.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
+        state.currentOrder = action.payload;
+      })
+      .addCase(fetchOrderByNumber.rejected, (state, action) => {
+        state.error = action.error || null;
       });
   },
 });
 
-export const { clearOrderModal } = ordersSlice.actions;
-export const ordersReducer = ordersSlice.reducer;
+export const { clearCurrentOrder } = orderSlice.actions;
+export default orderSlice.reducer;

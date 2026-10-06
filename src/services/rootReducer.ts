@@ -1,11 +1,15 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import { ingredientsReducer } from "./slices/ingredientSlice";
-import { userReducer } from "./slices/userSlice";
-import { ordersReducer } from "./slices/orderSlice";
+import ingredientReducer from './slices/ingredientSlice';
+import userReducer from "./slices/userSlice";
+import constructorReducer from './slices/constructorSlice';
+import  ordersReducer  from "./slices/orderSlice";
+import feedReducer from './slices/feedSlice';
 
 // TODO: Заменить на настоящий корневой редьюсер
 export const rootReducer = combineReducers({
-  ingredients: ingredientsReducer,
+  ingredients: ingredientReducer,
   user: userReducer,
+  constructor: constructorReducer,
   orders: ordersReducer,
+  feed: feedReducer,
 })
