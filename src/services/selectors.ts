@@ -9,9 +9,6 @@ export const isAuthCheckedSelector = (state: RootState) => state.user.isAuthChec
 export const isAuthLoadingSelector = (state: RootState) => state.user.isLoading;
 export const authErrorSelector = (state: RootState) => state.user.error;
 
-export const constructorBunSelector = (state: RootState) => state.constructor.bun;
-export const constructorIngredientsSelector = (state: RootState) => state.constructor.ingredients;
-
 export const ordersSelector = (state: RootState) => state.orders.orders;
 export const orderRequestSelector = (state: RootState) => state.orders.orderRequest;
 export const orderModalDataSelector = (state: RootState) => state.orders.orderModalData;

@@ -10,7 +10,6 @@ export const IngredientsCategoryUI = ({
   ingredients,
   ingredientsCounters,
   ref,
-  onIngredientClick,
 }: TIngredientsCategoryUIProps): React.JSX.Element => (
   <>
     <h3 className="text text_type_main-medium mt-10 mb-6" ref={titleRef}>
@@ -22,7 +21,6 @@ export const IngredientsCategoryUI = ({
           ingredient={ingredient}
           key={ingredient._id}
           count={ingredientsCounters[ingredient._id]}
-          handleAdd={() => onIngredientClick?.(ingredient)}
         />
       ))}
     </ul>

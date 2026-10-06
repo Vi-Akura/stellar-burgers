@@ -2,18 +2,15 @@ import { BurgerIngredientsUI } from '@ui';
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useSelector } from '@/services/store';
-import { useDispatch } from '@/services/store';
 
 import type { TIngredient, TTabMode } from '@utils-types';
 import { ingredientsSelector } from '@/services/selectors';
-import { addIngredient } from '@/services/slices/constructorIngSlice';
 
 export const BurgerIngredients = (): React.JSX.Element => {
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
   const titleMainRef = useRef<HTMLHeadingElement>(null);
   const titleSaucesRef = useRef<HTMLHeadingElement>(null);
-  const dispatch =  useDispatch();
   // TODO: Взять ингредиенты из стора
   const ingredients = useSelector(ingredientsSelector);
 
@@ -61,10 +58,6 @@ export const BurgerIngredients = (): React.JSX.Element => {
     [ingredients]
   );
 
-  const handleIngredientClick = (ingredient: TIngredient) => {
-    dispatch(addIngredient(ingredient));
-  }
-
   return (
     <BurgerIngredientsUI
       currentTab={currentTab}
@@ -78,7 +71,6 @@ export const BurgerIngredients = (): React.JSX.Element => {
       mainsRef={mainsRef}
       saucesRef={saucesRef}
       onTabClick={onTabClick}
-      onIngredientClick={handleIngredientClick}
     />
   );
 };
