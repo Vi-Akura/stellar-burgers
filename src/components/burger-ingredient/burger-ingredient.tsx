@@ -14,7 +14,6 @@ export const BurgerIngredient = memo(function BurgerIngredient({
   const dispatch = useDispatch();
 
   const handleAdd = (): void => {
-    console.log(" КЛИК БЫЛ! Пытаемся добавить:", ingredient.name);
     dispatch(addIngredient(ingredient));
   };
 
