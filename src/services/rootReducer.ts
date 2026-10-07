@@ -1,7 +1,7 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import ingredientReducer from './slices/ingredientSlice';
 import userReducer from "./slices/userSlice";
-import constructorReducer from './slices/constructorSlice';
+import bugerConstructorReducer from './slices/constructorSlice';
 import  ordersReducer  from "./slices/orderSlice";
 import feedReducer from './slices/feedSlice';
 
@@ -9,7 +9,7 @@ import feedReducer from './slices/feedSlice';
 export const rootReducer = combineReducers({
   ingredients: ingredientReducer,
   user: userReducer,
-  constructor: constructorReducer,
+  burgerConstructor: bugerConstructorReducer,
   orders: ordersReducer,
   feed: feedReducer,
 })

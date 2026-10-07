@@ -8,8 +8,8 @@ export const userDataSelector = (state: RootState) => state.user.user;
 export const isAuthCheckedSelector = (state: RootState) => state.user.isAuthChecked;
 export const authErrorSelector = (state: RootState) => state.user.error;
 
-export const constructorBunSelector = (state: RootState) => state.constructor.bun;
-export const constructorIngredientsSelector = (state: RootState) => state.constructor.ingredients;
+export const constructorBunSelector = (state: RootState) => state.burgerConstructor.bun;
+export const constructorIngredientsSelector = (state: RootState) => state.burgerConstructor.ingredients;
 
 export const orderRequestSelector = (state: RootState) => state.orders.orderRequest;
 export const currentOrderSelector = (state: RootState) => state.orders.currentOrder;
