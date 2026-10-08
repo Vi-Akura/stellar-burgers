@@ -4,7 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import { useSelector } from '@/services/store';
 
 import type { TIngredient, TTabMode } from '@utils-types';
-import { ingredientsSelector } from '@/services/selectors';
+import { ingredientsSelector, constructorBunSelector, constructorIngredientsSelector } from '@/services/selectors';
 
 export const BurgerIngredients = (): React.JSX.Element => {
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
@@ -13,6 +13,8 @@ export const BurgerIngredients = (): React.JSX.Element => {
   const titleSaucesRef = useRef<HTMLHeadingElement>(null);
   // TODO: Взять ингредиенты из стора
   const ingredients = useSelector(ingredientsSelector);
+  const constructorBun = useSelector(constructorBunSelector);
+  const constructorIngredients = useSelector(constructorIngredientsSelector);
 
   const [bunsRef, inViewBuns] = useInView({
     threshold: 0,
@@ -58,12 +60,34 @@ export const BurgerIngredients = (): React.JSX.Element => {
     [ingredients]
   );
 
+  const getCount = (id: string, type: string) => {
+    if (type === 'bun') {
+      return constructorBun && constructorBun._id === id ? 1 : 0;
+    }
+    return constructorIngredients.filter((item) => item._id === id).length;
+  };
+
+  const bunsWithCount = useMemo(
+    () => buns.map((item) => ({ ...item, count: getCount(item._id, 'bun') })),
+    [buns, constructorBun]
+  );
+
+  const mainsWithCount = useMemo(
+    () => mains.map((item) => ({ ...item, count: getCount(item._id, 'main') })),
+    [mains, constructorIngredients]
+  );
+
+  const saucesWithCount = useMemo(
+    () => sauces.map((item) => ({ ...item, count: getCount(item._id, 'sauce') })),
+    [sauces, constructorIngredients]
+  );
+
   return (
     <BurgerIngredientsUI
       currentTab={currentTab}
-      buns={buns}
-      mains={mains}
-      sauces={sauces}
+      buns={bunsWithCount}
+      mains={mainsWithCount}
+      sauces={saucesWithCount}
       titleBunRef={titleBunRef}
       titleMainRef={titleMainRef}
       titleSaucesRef={titleSaucesRef}
