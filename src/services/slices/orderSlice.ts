@@ -9,6 +9,7 @@ import {
 type TOrderState = {
   orders: TOrder[];
   currentOrder: TOrder | null;
+  selectedOrder: TOrder | null;
   orderRequest: boolean;
   error: SerializedError | null;
 };
@@ -16,6 +17,7 @@ type TOrderState = {
 const initialState: TOrderState = {
   orders: [],
   currentOrder: null,
+  selectedOrder: null,
   orderRequest: false,
   error: null,
 };
@@ -61,6 +63,9 @@ const orderSlice = createSlice({
   reducers: {
     clearCurrentOrder: (state) => {
       state.currentOrder = null;
+    },
+    clearSelectedOrder: (state) => {
+      state.selectedOrder = null;
     }
   },
   extraReducers: (builder) => {
@@ -90,9 +95,10 @@ const orderSlice = createSlice({
 
       .addCase(fetchOrderByNumber.pending, (state) => {
         state.error = null;
+        state.selectedOrder = null;
       })
       .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
-        state.currentOrder = action.payload;
+        state.selectedOrder = action.payload;
       })
       .addCase(fetchOrderByNumber.rejected, (state, action) => {
         state.error = action.error || null;

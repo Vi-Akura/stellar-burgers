@@ -23,7 +23,7 @@ const initialState: TUserState = {
   error: null,
 };
 
-export const registerUser = createAsyncThunk<TAuthResponse, { email: string; name: string; password: string }>(
+export const registerUser = createAsyncThunk<TAuthResponse, { email: string; name: string; password: string }, {rejectValue: string}>(
   'user/register',
   async (data, { rejectWithValue }) => {
     try {
@@ -32,12 +32,15 @@ export const registerUser = createAsyncThunk<TAuthResponse, { email: string; nam
       setCookie('refreshToken', response.refreshToken);
       return response;
     } catch (err) {
-      return rejectWithValue(err);
+      if (err instanceof Error) {
+        return rejectWithValue(err.message);
+      }
+      return rejectWithValue('Произошла ошибка при регистрации');
     }
   }
 );
 
-export const loginUser = createAsyncThunk<TAuthResponse, { email: string; password: string }>(
+export const loginUser = createAsyncThunk<TAuthResponse, { email: string; password: string }, {rejectValue: string}>(
   'user/login',
   async (data, { rejectWithValue }) => {
     try {
@@ -46,36 +49,45 @@ export const loginUser = createAsyncThunk<TAuthResponse, { email: string; passwo
       setCookie('refreshToken', response.refreshToken);
       return response;
     } catch (err) {
-      return rejectWithValue(err);
+      if (err instanceof Error) {
+        return rejectWithValue(err.message);
+      }
+      return rejectWithValue('Произошла ошибка при входе');
     }
   }
 );
 
-export const fetchUser = createAsyncThunk<TUser>(
+export const fetchUser = createAsyncThunk<TUser, void, {rejectValue: string}>(
   'user/fetchUser',
   async (_, { rejectWithValue }) => {
     try {
       const response = await getUserApi();
       return response.user;
     } catch (err) {
-      return rejectWithValue(err);
+      if (err instanceof Error) {
+        return rejectWithValue(err.message);
+      }
+      return rejectWithValue('Произошла ошибка при получении данных пользователя')
     }
   }
 );
 
-export const updateUser = createAsyncThunk<TUser, Partial<{ name: string; email: string; password: string }>>(
+export const updateUser = createAsyncThunk<TUser, Partial<{ name: string; email: string; password: string }>, {rejectValue: string}>(
   'user/updateUser',
   async (data, { rejectWithValue }) => {
     try {
       const response = await updateUserApi(data);
       return response.user;
     } catch (err) {
-      return rejectWithValue(err);
+      if (err instanceof Error) {
+        return rejectWithValue(err.message);
+      }
+      return rejectWithValue('Ошибка при обновлении данных пользователя')
     }
   }
 );
 
-export const logoutUser = createAsyncThunk<void>(
+export const logoutUser = createAsyncThunk<void, void, {rejectValue: string}>(
   'user/logout',
   async (_, { rejectWithValue }) => {
     try {
@@ -83,7 +95,10 @@ export const logoutUser = createAsyncThunk<void>(
       deleteCookie('accessToken');
       deleteCookie('refreshToken');
     } catch (err) {
-      return rejectWithValue(err);
+      if (err instanceof Error) {
+        return rejectWithValue(err.message);
+      }
+      return rejectWithValue('Ошибка при выходе из системы')
     }
   }
 );
@@ -106,7 +121,7 @@ const userSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isAuthChecked = true;
-        state.error = action.error || null;
+        state.error = action.payload ? {message: action.payload, name: 'Rejected'}: action.error || null;
         state.isLoading = false;
       })
 
@@ -122,7 +137,7 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isAuthChecked = true;
-        state.error = action.error || null;
+        state.error = action.payload ? {message: action.payload, name: 'Rejected'}: action.error || null;
         state.isLoading = false;
       })
 
@@ -153,7 +168,7 @@ const userSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(updateUser.rejected, (state, action) => {
-        state.error = action.error || null;
+        state.error = action.payload ? {message: action.payload, name: 'Rejected'}: action.error || null;
         state.isLoading = false;
       })
 
@@ -168,7 +183,7 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {
-        state.error = action.error || null;
+        state.error = action.payload ? {message: action.payload, name: 'Rejected'}: action.error || null;
         state.isLoading = false;
       });
   },

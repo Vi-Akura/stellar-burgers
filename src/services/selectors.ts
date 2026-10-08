@@ -14,6 +14,7 @@ export const constructorIngredientsSelector = (state: RootState) => state.burger
 export const orderRequestSelector = (state: RootState) => state.orders.orderRequest;
 export const currentOrderSelector = (state: RootState) => state.orders.currentOrder;
 export const ordersSelector = (state: RootState) => state.orders.orders;
+export const selectedOrderSelector = (state: RootState) => state.orders.selectedOrder;
 
 export const feedOrdersSelector = (state: RootState) => state.feed.orders;
 export const feedTotalSelector = (state: RootState) => state.feed.total;

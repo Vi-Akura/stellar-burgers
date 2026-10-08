@@ -105,8 +105,8 @@ const RouteComponent = (): React.JSX.Element => {
         <Route path="/" element={<ConstructorPage />} />
         <Route path="/feed" element={<Feed />} />
 
-        <Route path="/feed/:number" element={<Feed />} />
-        <Route path="/ingredients/:id" element={<ConstructorPage />} />
+        <Route path="/feed/:number" element={<OrderInfo />} />
+        <Route path="/ingredients/:id" element={<IngredientDetails />} />
 
         <Route
           path="/login"
@@ -135,7 +135,7 @@ const RouteComponent = (): React.JSX.Element => {
         />
         <Route
           path="/profile/orders/:number"
-          element={<ProtectedRoute auth component={<ProfileOrders />} />}
+          element={<ProtectedRoute auth component={<OrderInfo />} />}
         />
 
         <Route path="*" element={<NotFound404 />} />
@@ -162,9 +162,14 @@ const RouteComponent = (): React.JSX.Element => {
           <Route
             path="/profile/orders/:number"
             element={
-              <Modal title="Детали заказа" onClose={() => navigate(-1)}>
-                <OrderInfo />
-              </Modal>
+              <ProtectedRoute
+                auth
+                component={
+                  <Modal title="Детали заказа" onClose={() => navigate(-1)}>
+                    <OrderInfo />
+                  </Modal>
+                }
+              />
             }
           />
         </Routes>

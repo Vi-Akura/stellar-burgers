@@ -5,13 +5,13 @@ import { useDispatch, useSelector } from '@/services/store';
 
 import type { TIngredient } from '@utils-types';
 import { fetchOrderByNumber } from '@/services/slices/orderSlice';
-import { currentOrderSelector, ingredientsSelector } from '@/services/selectors';
+import { ingredientsSelector, selectedOrderSelector } from '@/services/selectors';
 
 export const OrderInfo = (): React.JSX.Element => {
   const dispatch = useDispatch();
   const { number } = useParams<{ number: string }>();
 
-  const orderData = useSelector(currentOrderSelector);
+  const orderData = useSelector(selectedOrderSelector);
   const ingredients = useSelector(ingredientsSelector);
 
   useEffect(() => {
