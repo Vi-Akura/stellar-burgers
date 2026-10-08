@@ -8,6 +8,8 @@ import {
   logoutApi,
 } from '../../utils/burger-api';
 import { setCookie, deleteCookie } from '../../utils/cookie'; // Проверь путь к cookie.ts
+import { setLocalStorage, deleteLocalStorage } from '@/utils/localStorage';
+
 
 type TUserState = {
   user: TUser | null;
@@ -29,7 +31,7 @@ export const registerUser = createAsyncThunk<TAuthResponse, { email: string; nam
     try {
       const response = await registerUserApi(data);
       setCookie('accessToken', response.accessToken);
-      setCookie('refreshToken', response.refreshToken);
+      setLocalStorage('refreshToken', response.refreshToken);
       return response;
     } catch (err) {
       if (err instanceof Error) {
@@ -46,7 +48,7 @@ export const loginUser = createAsyncThunk<TAuthResponse, { email: string; passwo
     try {
       const response = await loginUserApi(data);
       setCookie('accessToken', response.accessToken);
-      setCookie('refreshToken', response.refreshToken);
+      setLocalStorage('refreshToken', response.refreshToken);
       return response;
     } catch (err) {
       if (err instanceof Error) {
@@ -93,7 +95,7 @@ export const logoutUser = createAsyncThunk<void, void, {rejectValue: string}>(
     try {
       await logoutApi();
       deleteCookie('accessToken');
-      deleteCookie('refreshToken');
+      deleteLocalStorage('refreshToken');
     } catch (err) {
       if (err instanceof Error) {
         return rejectWithValue(err.message);
