@@ -1,5 +1,7 @@
 import { BurgerConstructorElementUI } from '@ui';
 import { memo } from 'react';
+import { useDispatch } from '@/services/store';
+import { removeIngredient, moveIngredient } from '@/services/slices/constructorSlice';
 
 import type { BurgerConstructorElementProps } from './type';
 
@@ -8,16 +10,20 @@ export const BurgerConstructorElement = memo(function BurgerConstructorElement({
   index,
   totalItems,
 }: BurgerConstructorElementProps): React.JSX.Element {
+  const dispatch = useDispatch();
+
   const handleMoveDown = (): void => {
-    // TODO
+    // TODO: Реализовать перемещение вниз
+    dispatch(removeIngredient(ingredient.id))
   };
 
   const handleMoveUp = (): void => {
-    // TODO
+    // TODO: Реализовать перемещение вверх
+    dispatch(moveIngredient({id: ingredient.id, direction: 'up'}))
   };
 
   const handleClose = (): void => {
-    // TODO
+    dispatch(removeIngredient(ingredient.id));
   };
 
   return (
