@@ -35,6 +35,21 @@ const constructorSlice = createSlice({
       );
     },
 
+    moveIngredient: (state, action: PayloadAction<{ id: string; direction: 'up' | 'down' }>) => {
+      const { id, direction } = action.payload;
+      const index = state.ingredients.findIndex((item) => item.id === id);
+      
+      if (index === -1) return;
+
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+
+      if (newIndex >= 0 && newIndex < state.ingredients.length) {
+        const temp = state.ingredients[index];
+        state.ingredients[index] = state.ingredients[newIndex];
+        state.ingredients[newIndex] = temp;
+      }
+    },
+
     resetConstructor: (state) => {
       state.bun = null;
       state.ingredients = [];
@@ -42,5 +57,5 @@ const constructorSlice = createSlice({
   },
 });
 
-export const { addIngredient, removeIngredient, resetConstructor } = constructorSlice.actions;
+export const { addIngredient, removeIngredient, moveIngredient, resetConstructor } = constructorSlice.actions;
 export default constructorSlice.reducer;
