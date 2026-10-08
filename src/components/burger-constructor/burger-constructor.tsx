@@ -1,5 +1,5 @@
 import { BurgerConstructorUI } from '@ui';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useSelector, useDispatch } from '@/services/store';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -30,6 +30,12 @@ export const BurgerConstructor = (): React.JSX.Element | null => {
     ingredients,
   };
 
+   useEffect(() => {
+    if (orderModalData) {
+      dispatch(resetConstructor());
+    }
+  }, [orderModalData, dispatch]);
+
   const onOrderClick = (): void => {
     if (!constructorItems.bun || orderRequest) return;
 
@@ -48,7 +54,6 @@ export const BurgerConstructor = (): React.JSX.Element | null => {
 
   const closeOrderModal = (): void => {
     dispatch(clearCurrentOrder());
-    dispatch(resetConstructor());
   };
 
   const price = useMemo(
