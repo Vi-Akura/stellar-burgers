@@ -8,6 +8,8 @@ import styles from './feed.module.css';
 
 export const FeedUI = memo(function FeedUI({
   orders,
+  total,
+  totalToday,
   handleGetFeeds,
 }: FeedUIProps): React.JSX.Element {
   return (
@@ -21,7 +23,7 @@ export const FeedUI = memo(function FeedUI({
           <OrdersList orders={orders} />
         </div>
         <div className={styles.columnInfo}>
-          <FeedInfo />
+          <FeedInfo total={total} totalToday={totalToday}/>
         </div>
       </div>
     </main>

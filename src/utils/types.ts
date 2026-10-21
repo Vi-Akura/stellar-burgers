@@ -51,3 +51,15 @@ export type TFeedState = {
   isLoading: boolean;
   error: unknown;
 };
+
+export type TAuthResponse = {
+  success: boolean;
+  user: TUser;
+  accessToken: string;
+  refreshToken: string;
+};
+
+export type TUserResponse = {
+  success: boolean;
+  user: TUser;
+};
