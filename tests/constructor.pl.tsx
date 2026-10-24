@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { getHarData } from './test-utils';
 
 test.describe('Конструктор бургера: интеграционные тесты', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,92 +8,112 @@ test.describe('Конструктор бургера: интеграционны
       document.cookie = 'accessToken=fake-access-token; path=/';
     });
 
-    await page.routeFromHAR('./tests/hars/ingredients.har', {
-      url: 'https://norma.education-services.ru/api/ingredients',
-      update: false,
+    const ingredientsData = getHarData('ingredients.har');
+    const userUnauthorizedData = getHarData('user-unauthorized.har');
+
+    await page.route('**/ingredients', async (route) => {
+      const data = ingredientsData.find(d => d.url.includes('/ingredients'));
+      if (data) {
+        await route.fulfill({
+          status: data.status,
+          contentType: data.contentType,
+          body: data.body,
+        });
+      }
     });
 
-    await page.route('**/api/auth/user', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ 
-          success: true, 
-          user: { name: 'Тестовый Пользователь', email: 'test@test.ru' } 
-        }),
-      });
-    });
-
-    await page.route('**/api/orders', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          name: 'Флюоресцентный бургер',
-          order: { number: 12345 },
-        }),
-      });
+    await page.route('**/auth/user', async (route) => {
+      const data = userUnauthorizedData.find(d => d.url.includes('/auth/user'));
+      if (data) {
+        await route.fulfill({
+          status: data.status,
+          contentType: data.contentType,
+          body: data.body,
+        });
+      }
     });
 
     await page.goto('/');
     
+    await page.getByTestId('ingredients-content').waitFor({ timeout: 10000 });
     await page.getByRole('button', { name: 'Добавить' }).first().waitFor({ timeout: 10000 });
   });
 
   test('добавляет ингредиент в конструктор', async ({ page }) => {
-    const addButtons = page.getByRole('button', { name: 'Добавить' });
-    
-    await addButtons.first().click();
-    await expect(page.getByText('Краторная булка N-200i (верх)')).toBeVisible();
-    
-    await addButtons.nth(2).click();
-    await expect(page.getByText('Биокотлета из марсианской Магнолии')).toBeVisible();
+    const bun = page.getByTestId('bun-ingredients').locator('li').first();
+    const filling = page.getByTestId('mains-ingredients').locator('li').first();
+
+    await bun.getByRole('button', { name: 'Добавить' }).click();
+    await filling.getByRole('button', { name: 'Добавить' }).click();
+
+    const constructor = page.getByTestId('constructor');
+    await expect(constructor.getByTestId('constructor-bun-1')).toBeVisible();
+    await expect(constructor.getByTestId('constructor-bun-2')).toBeVisible();
+    await expect(page.getByTestId('constructor-ingredients')).toContainText('Биокотлета из марсианской Магнолии');
   });
 
   test('открывает модальное окно ингредиента и закрывает по клику на крестик', async ({ page }) => {
-    const firstIngredientLink = page.locator('a[href*="/ingredients/"]').first();
-    const ingredientName = await firstIngredientLink.locator('p').innerText();
+    const ingredientName = 'Краторная булка N-200i';
 
-    await firstIngredientLink.click();
+    await page.getByText(ingredientName).first().click();
 
-    const modal = page.locator('[class*="modal"]').first();
-    await expect(modal).toBeVisible();
-    await expect(modal.locator('h3')).toContainText(ingredientName);
+    await expect(page.getByTestId('modal-overlay')).toBeVisible();
+    
+    const modal = page.locator('#modals');
+    await expect(modal.getByRole('heading', { name: 'Детали ингредиента' })).toBeVisible();
+    await expect(modal.getByText(ingredientName).first()).toBeVisible();
 
-    await modal.locator('button').first().click();
-    await expect(modal).not.toBeVisible();
+    await modal.getByRole('button').click();
+    await expect(page.getByTestId('modal-overlay')).toHaveCount(0);
   });
 
   test('создаёт заказ, показывает его номер и очищает конструктор', async ({ page }) => {
-    await page.route('**/api/auth/user', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          user: { email: 'test@test.ru', name: 'Тест' },
-        }),
-      });
+    const userAuthorizedData = getHarData('user-authorized.har');
+    const orderCreatedData = getHarData('order-created.har');
+
+    await page.route('**/auth/user', async (route) => {
+      const data = userAuthorizedData.find(d => d.url.includes('/auth/user'));
+      if (data) {
+        await route.fulfill({
+          status: data.status,
+          contentType: data.contentType,
+          body: data.body,
+        });
+      }
+    });
+
+    await page.route('**/orders', async (route) => {
+      const data = orderCreatedData.find(d => d.url.includes('/orders'));
+      if (data) {
+        await route.fulfill({
+          status: data.status,
+          contentType: data.contentType,
+          body: data.body,
+        });
+      }
     });
 
     await page.reload();
+    await page.getByTestId('ingredients-content').waitFor({ timeout: 10000 });
     await page.getByRole('button', { name: 'Добавить' }).first().waitFor({ timeout: 10000 });
 
-    const addButtons = page.getByRole('button', { name: 'Добавить' });
-    await addButtons.first().click();
-    await addButtons.nth(2).click();
+    const bun = page.getByTestId('bun-ingredients').locator('li').first();
+    const filling = page.getByTestId('mains-ingredients').locator('li').first();
+
+    await bun.getByRole('button', { name: 'Добавить' }).click();
+    await filling.getByRole('button', { name: 'Добавить' }).click();
 
     await page.getByRole('button', { name: 'Оформить заказ' }).click();
 
-    const modal = page.locator('[class*="modal"]').first();
-    await expect(modal).toBeVisible();
-    await expect(modal.locator('[class*="digits-large"]')).toContainText('12345');
+    await expect(page.getByTestId('modal-overlay')).toBeVisible();
+    const modal = page.locator('#modals');
+    await expect(modal.getByTestId('order-number')).toHaveText('99999');
 
-    await expect(page.getByText('Выберите булки')).toBeVisible();
-    await expect(page.getByText('Выберите начинку')).toBeVisible();
+    await expect(page.getByTestId('constructor-bun-1')).toHaveCount(0);
+    await expect(page.getByTestId('constructor-bun-2')).toHaveCount(0);
+    await expect(page.getByTestId('constructor-ingredients')).toContainText('Выберите начинку');
 
-    await modal.locator('button').first().click();
-    await expect(modal).not.toBeVisible();
+    await modal.getByRole('button').click();
+    await expect(page.getByTestId('modal-overlay')).toHaveCount(0);
   });
 });

@@ -79,6 +79,47 @@ describe('constructorSlice reducer', () => {
     expect(state.ingredients[1].id).toBe('id-1');
   });
 
+    it('должен переместить начинку вниз при moveIngredient direction=down', () => {
+    const item1: TConstructorIngredient = { ...mockFilling, id: 'id-1' };
+    const item2: TConstructorIngredient = { ...mockFilling, id: 'id-2' };
+    const item3: TConstructorIngredient = { ...mockFilling, id: 'id-3' };
+    const stateWithThree = { 
+      ...initialState, 
+      ingredients: [item1, item2, item3] 
+    };
+    
+    const action = moveIngredient({ id: 'id-1', direction: 'down' });
+    const state = constructorReducer(stateWithThree, action);
+    
+    expect(state.ingredients[0].id).toBe('id-2');
+    expect(state.ingredients[1].id).toBe('id-1');
+    expect(state.ingredients[2].id).toBe('id-3');
+  });
+
+  it('не должен перемещать элемент вверх, если он первый', () => {
+    const item1: TConstructorIngredient = { ...mockFilling, id: 'id-1' };
+    const item2: TConstructorIngredient = { ...mockFilling, id: 'id-2' };
+    const stateWithTwo = { ...initialState, ingredients: [item1, item2] };
+    
+    const action = moveIngredient({ id: 'id-1', direction: 'up' });
+    const state = constructorReducer(stateWithTwo, action);
+    
+    expect(state.ingredients[0].id).toBe('id-1');
+    expect(state.ingredients[1].id).toBe('id-2');
+  });
+
+  it('не должен перемещать элемент вниз, если он последний', () => {
+    const item1: TConstructorIngredient = { ...mockFilling, id: 'id-1' };
+    const item2: TConstructorIngredient = { ...mockFilling, id: 'id-2' };
+    const stateWithTwo = { ...initialState, ingredients: [item1, item2] };
+    
+    const action = moveIngredient({ id: 'id-2', direction: 'down' });
+    const state = constructorReducer(stateWithTwo, action);
+    
+    expect(state.ingredients[0].id).toBe('id-1');
+    expect(state.ingredients[1].id).toBe('id-2');
+  });
+
   it('должен очистить конструктор при resetConstructor', () => {
     const stateWithItems = {
       bun: { ...mockBun, id: 'bun-id' } as TConstructorIngredient,
