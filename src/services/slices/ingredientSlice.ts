@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type SerializedError } from '@reduxjs/toolkit';
 import { getIngredientsApi } from '../../utils/burger-api';
-import type { TIngredient } from '@/utils/types';
+import type { TIngredient } from '../../utils/types';
 
 type TIngredientsState = {
   data: TIngredient[];
@@ -8,7 +8,7 @@ type TIngredientsState = {
   error: SerializedError | null;
 };
 
-const initialState: TIngredientsState = {
+export const initialState: TIngredientsState = {
   data: [],
   loading: false,
   error: null,
@@ -40,7 +40,10 @@ const ingredientSlice = createSlice({
 
       .addCase(fetchIngredients.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error || 'Ошибка при загрузке ингредиентов';
+        state.error = action.error || {
+          name: 'Rejected',
+          message: 'Ошибка при загрузке ингредиентов',
+        };
       });
   },
 });
